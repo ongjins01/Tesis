@@ -23,6 +23,7 @@ for col in symptom_cols:
 # 4. Label encoding untuk target
 label_encoder = LabelEncoder()
 df["Kategori Diagnosis"] = label_encoder.fit_transform(df["Kategori Diagnosis"])
+y = df["Kategori Diagnosis"].astype(int)
 
 # 5. Pisahkan X dan y
 X = df.drop(columns=["Kategori Diagnosis"]).fillna(0)

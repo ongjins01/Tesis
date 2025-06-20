@@ -13,9 +13,9 @@ st.set_page_config(page_title="Deteksi Dini Penyakit Hepatitis", layout="wide")
 df = pd.read_excel("Data Training Hepatitis.xlsx")
 
 # 2. Encode kolom JK
-df["JK"] = df["JK"].astype(str).str[0].map({"P": 0, "L": 1})
+df["JK"] = df["JK"].map({"P": 0, "L": 1})
 
-# 3. Konversi Ya/Tidak menjadi 1/0
+# 3. Konversi Ya/Tidak
 symptom_cols = df.columns.difference(["Umur", "JK", "Kategori Diagnosis"])
 for col in symptom_cols:
     df[col] = df[col].apply(lambda x: 1 if str(x).strip().lower() == "ya" else 0)
@@ -25,40 +25,29 @@ label_encoder = LabelEncoder()
 df["Kategori Diagnosis"] = label_encoder.fit_transform(df["Kategori Diagnosis"])
 
 # 5. Pisahkan X dan y
-X = df.drop(columns=["Kategori Diagnosis"]).copy()
-y = df["Kategori Diagnosis"].astype(int)
+X = df.drop(columns=["Kategori Diagnosis"]).fillna(0)
+y = df["Kategori Diagnosis"]
 
-# 6. Pastikan X numerik dan tidak ada NaN
-X = X.apply(pd.to_numeric, errors="coerce").fillna(0)
+# 6. SMOTE (duluan, pakai data mentah)
+smote = SMOTE(random_state=42)
+X_resampled, y_resampled = smote.fit_resample(X, y)
 
-# 7. Cek jumlah kelas dan terapkan SMOTE
-if len(set(y)) < 2:
-    st.warning("Data hanya memiliki 1 kelas, SMOTE dilewati.")
-    X_resampled, y_resampled = X, y
-else:
-    try:
-        smote = SMOTE(random_state=42, sampling_strategy="not majority")
-        X_resampled, y_resampled = smote.fit_resample(X, y)
-        st.info("✅ SMOTE berhasil dijalankan.")
-    except Exception as e:
-        st.error(f"❌ Gagal menjalankan SMOTE: {e}")
-        X_resampled, y_resampled = X, y
-
-# 8. Normalisasi
+# 7. Normalisasi (setelah SMOTE)
 scaler = MinMaxScaler()
 X_resampled_scaled = scaler.fit_transform(X_resampled)
 
-# 9. Latih model SVM
-svm_model = SVC(kernel="linear", probability=True, random_state=42)
+# 8. Latih model SVM
+svm_model = SVC(kernel='linear', probability=True, random_state=42)
 svm_model.fit(X_resampled_scaled, y_resampled)
 
-# 10. Evaluasi (hanya untuk developer)
+# 9. Evaluasi pada data asli
 X_scaled = scaler.transform(X)
 y_pred = svm_model.predict(X_scaled)
+
 print("Akurasi:", accuracy_score(y, y_pred))
 print(classification_report(y, y_pred))
 
-# 11. Simpan model dan encoder
+# 10. Simpan model dan encoder
 joblib.dump(svm_model, "svm_model.pkl")
 joblib.dump(label_encoder, "label_encoder.pkl")
 joblib.dump(scaler, "scaler.pkl")

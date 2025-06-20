@@ -48,26 +48,10 @@ print("Akurasi:", accuracy_score(y, y_pred))
 print(classification_report(y, y_pred))
 
 # 10. Simpan model dan encoder
-import os
-
-model_ready = all([
-    os.path.exists("svm_model.pkl"),
-    os.path.exists("label_encoder.pkl"),
-    os.path.exists("scaler.pkl"),
-    os.path.exists("used_columns.pkl")
-])
-
-if model_ready:
-    svm_model = joblib.load("svm_model.pkl")
-    label_encoder = joblib.load("label_encoder.pkl")
-    scaler = joblib.load("scaler.pkl")
-    used_columns = joblib.load("used_columns.pkl")
-else:
-    svm_model = None
-    label_encoder = None
-    scaler = None
-    used_columns = []
-
+joblib.dump(svm_model, "svm_model.pkl")
+joblib.dump(label_encoder, "label_encoder.pkl")
+joblib.dump(scaler, "scaler.pkl")
+joblib.dump(X.columns.tolist(), "used_columns.pkl")
 
 
 # ====================== BAGIAN STREAMLIT APP ======================

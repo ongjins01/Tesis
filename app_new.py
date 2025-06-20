@@ -6,7 +6,6 @@ from sklearn.metrics import accuracy_score, classification_report, confusion_mat
 from imblearn.over_sampling import SMOTE
 import joblib
 import streamlit as st
-from sklearn.utils._tags import _safe_tags
 
 st.set_page_config(page_title="Deteksi Dini Penyakit Hepatitis", layout="wide")
 

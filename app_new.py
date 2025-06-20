@@ -29,8 +29,11 @@ X = df.drop(columns=["Kategori Diagnosis"]).fillna(0)
 y = df["Kategori Diagnosis"]
 
 # 6. SMOTE (duluan, pakai data mentah)
-smote = SMOTE(random_state=42)
-X_resampled, y_resampled = smote.fit_resample(X, y)
+if len(y.unique()) < 2:
+    st.warning("Jumlah kelas tidak mencukupi untuk resampling.")
+else:
+    smote = SMOTE(random_state=42, sampling_strategy='not majority')
+    X_resampled, y_resampled = smote.fit_resample(X, y)
 
 # 7. Normalisasi (setelah SMOTE)
 scaler = MinMaxScaler()

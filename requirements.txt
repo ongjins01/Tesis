@@ -1,8 +1,8 @@
 streamlit
 pandas
-scikit-learn
+scikit-learn>=1.2
+imbalanced-learn>=0.10
 joblib
+openpyxl
 matplotlib
 seaborn
-openpyxl
-imbalanced-learn
